@@ -8,8 +8,9 @@ document.body.appendChild(canvas);
 const ctx = canvas.getContext('2d');
 
 const MIN_RADIUS = 10;
-const MAX_RADIUS = 80;
+const MAX_RADIUS = 60;
 const RING_WIDTH = 5;
+const MAX_ATTEMPTS = 5000;
 const backgroundColor = 'rgb(240,240,240)';
 
 function drawCircle(x, y, radius) {
@@ -24,23 +25,22 @@ function drawCircle(x, y, radius) {
   }
 }
 
-
+function isSpotUnfilled(x, y, radius) {
+  const imageData = ctx.getImageData(x, y, 1, 1).data;
+  return imageData[0] === 240 && imageData[1] === 240 && imageData[2] === 240;
+}
 
 function fillCanvasWithRings() {
-  let rings = [];
-  for (let i = 0; i < 500; i++) {
-    rings.push({
-      x: Math.random() * canvas.width,
-      y: Math.random() * canvas.height,
-      radius: Math.random() * (MAX_RADIUS - MIN_RADIUS) + MIN_RADIUS
-    });
+  let attempt = 0;
+  while (attempt < MAX_ATTEMPTS) {
+    const x = Math.random() * canvas.width;
+    const y = Math.random() * canvas.height;
+    const radius = Math.random() * (MAX_RADIUS - MIN_RADIUS) + MIN_RADIUS;
+    if (isSpotUnfilled(x, y, radius)) {
+      drawCircle(x, y, radius);
+    }
+    attempt++;
   }
-
-  // Sort rings by radius, largest to smallest
-  rings.sort((a, b) => b.radius - a.radius);
-
-  // Draw the rings
-  rings.forEach(ring => drawCircle(ring.x, ring.y, ring.radius));
 }
 
 // Fill the background with light gray color
